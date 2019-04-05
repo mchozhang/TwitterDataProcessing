@@ -1,6 +1,7 @@
 from mpi4py import MPI
 from geo_util import GridManager
 import json
+from itertools import islice
 
 comm = MPI.COMM_WORLD
 size = comm.size
