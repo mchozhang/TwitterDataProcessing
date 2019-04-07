@@ -74,11 +74,17 @@ class GridManager(object):
     def append_tweet(self, hashtags, coordinates):
         """
         append a tweet to the record
-        :param hashtags:
-        :param coordinates:
+        :param hashtags: list of hashtags
+        :param coordinates: list of coordinate, size of 2 or 0
         :return:
         """
-        print("")
+        if len(coordinates) == 2:
+            cell_name = self.get_cell_name_from_coordinates(coordinates)
+            if cell_name is not None:
+                self.posts_table[cell_name] += self.posts_table[cell_name]
+
+    def get_cell_name_from_coordinates(self, coordinates):
+
 
     def print_grid(self):
         """
