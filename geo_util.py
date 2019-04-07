@@ -84,7 +84,7 @@ class GridManager(object):
                 self.posts_table[cell_name] += self.posts_table[cell_name]
 
     def get_cell_name_from_coordinates(self, coordinates):
-
+        return None
 
     def print_grid(self):
         """
