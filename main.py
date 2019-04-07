@@ -5,6 +5,7 @@ import json
 import os
 import sys
 
+
 comm = MPI.COMM_WORLD
 process_number = comm.size
 rank = comm.rank
@@ -13,7 +14,7 @@ grid_manager = GridManager()
 grid_manager.initial_grid()
 
 # get twitter json file
-filename = "bigTwitter.json"
+filename = "tinyTwitter.json"
 if len(sys.argv) == 2:
     filename = sys.argv[1]
 
