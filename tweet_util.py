@@ -6,7 +6,8 @@ def get_hashtags_from_tweet(tweet):
     :param tweet:tweet json object
     :return: list of hashtags
     """
-    tweet_text = tweet.get('doc').get('text')
+    tweet_text = tweet.get('doc').get('text').lower()
+    tweet_text = tweet_text.lower()
     hashtags = re.findall(r" #(\S+) ",tweet_text)
     return hashtags
 

@@ -53,7 +53,11 @@ with open(filename) as twitter_file:
             hashtags = tweet_util.get_hashtags_from_tweet(tweet)
             coordinates = tweet_util.get_coordinates_from_tweet(tweet)
 
+            temp = {"hashtags": hashtags}
+            new_file.write(str(temp) + "\n")
+
             if cur_pos > stop:
                 break
         except Exception as e:
             print(e)
+    new_file.close()
