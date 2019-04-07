@@ -16,9 +16,11 @@ class Cell(object):
         self.ymin = 0
         self.ymax = 0
 
+        self.name = ""
+
         # hash table of the presence number of the hashtags
         # in the form of <hashtag, number>
-        self.hashtags = {}
+        self.hashtags_map = {}
 
 
 class GridManager(object):
@@ -68,6 +70,15 @@ class GridManager(object):
                 self.ymax = cell.ymax
 
             self.grid.append(cell)
+
+    def append_tweet(self, hashtags, coordinates):
+        """
+        append a tweet to the record
+        :param hashtags:
+        :param coordinates:
+        :return:
+        """
+        print("")
 
     def print_grid(self):
         """

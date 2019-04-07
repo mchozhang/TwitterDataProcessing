@@ -49,10 +49,10 @@ with open(filename) as twitter_file:
 
             tweet = json.loads(line)
 
-            tweet_dict = {}
-            tweet_dict["hashtags"] = tweet_util.get_hashtags_from_tweet(tweet)
-            tweet_dict["coordinates"] = tweet_util.get_coordinates_from_tweet(tweet)
-            new_file.write(str(tweet_dict) + "\n")
+            hashtags = tweet_util.get_hashtags_from_tweet(tweet)
+            coordinates = tweet_util.get_coordinates_from_tweet(tweet)
 
+            if cur_pos > stop:
+                break
         except Exception as e:
             print(e)
