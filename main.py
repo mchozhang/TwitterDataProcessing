@@ -1,54 +1,58 @@
 from mpi4py import MPI
 from geo_util import GridManager
+import tweet_util
 import json
-from itertools import islice
+import os
+import sys
 
 comm = MPI.COMM_WORLD
-size = comm.size
+process_number = comm.size
 rank = comm.rank
-
-print("rank {}, size {}".format(rank, size))
 
 grid_manager = GridManager()
 grid_manager.initial_grid()
-grid_manager.print_grid()
 
-if rank == 0:
+# get twitter json file
+filename = "bigTwitter.json"
+if len(sys.argv) == 2:
+    filename = sys.argv[1]
 
-    offset = 0
-    with open("tinyTwitter.json") as twitter_file:
-        twitter_file.readline()
-        for i, line in enumerate(twitter_file):
-            try:
-                line = line.strip()
-                if line == "]}":
-                    break
-                if line.endswith(","):
-                    line = line[:-1]
+# initial json file information
+file_size = 0
+try:
+    file_size = os.path.getsize(filename)
+except Exception as e:
+    print(str(e))
 
-                tweet = json.loads(line)
+start = (file_size // process_number) * rank
+stop = (file_size // process_number) * (rank + 1)
+if rank + 1 == process_number:
+    stop += file_size % process_number
 
-                # hashtags
-                hashtags = tweet.get('doc').get("entities").get("hashtags")
-                # if len(hashtags) == 0:
-                #     print("no hash tag")
-                # else:
-                #     tags_str = ""
-                #     for hashtag in hashtags:
-                #         tags_str += hashtag.get('text') + " "
-                #     print(tags_str)
+with open(filename) as twitter_file:
+    new_filename = "part_{}.json".format(rank)
+    new_file = open(new_filename, "w+")
+    cur_pos = start
+    twitter_file.seek(start)
 
-                # coordinates
-                a = tweet.get('doc').get('coordinates')
-                if a is None:
-                    print("a is None")
-                else:
-                    coordinates = tweet.get('doc').get('coordinates').get('coordinates')
-                    if len(coordinates) != 2:
-                        print("out of bounds!!!!")
-                    if coordinates[0] < 144.7 or coordinates[0] > 145.3 \
-                            or coordinates[1] < -38.1 or coordinates[1] > -37.50:
-                        print("out of melbourne!!!")
-                    # print("{} {} {}".format(i, coordinates[0], coordinates[1]))
-            except Exception as e:
-                print(e)
+    # skip first line
+    first_line = twitter_file.readline()
+    cur_pos += len(first_line)
+    for line in twitter_file:
+        cur_pos += len(line)
+        try:
+            line = line.strip()
+            if line == "]}":
+                break
+            if line.endswith(","):
+                line = line[:-1]
+
+            tweet = json.loads(line)
+
+            tweet_dict = {}
+            tweet_dict["hashtags"] = tweet_util.get_hashtags_from_tweet(tweet)
+            tweet_dict["coordinates"] = tweet_util.get_coordinates_from_tweet(tweet)
+            new_file.write(str(tweet_dict) + "\n")
+
+        except Exception as e:
+            print(e)
