@@ -1,16 +1,20 @@
+# -*- encoding: utf-8 -*-
+#
+# Utility to parse tweet data from json object
+
 import re
+
 
 def get_hashtags_from_tweet(tweet):
     """
-    get the hashtags from a tweet json object
+    get the list of hashtags from a tweet json object,
+    hashtags are in lowercase
     :param tweet:tweet json object
     :return: list of hashtags
     """
-    tweet_text = tweet.get('doc').get('text').lower()
-    tweet_text = tweet_text.lower()
-    hashtags = re.findall(r" #(\S+) ",tweet_text)
-    return hashtags
-
+    tweet_text = tweet.get('doc').get('text')
+    hashtags = re.findall(r" #(\S+) ", tweet_text)
+    return [hashtag.lower() for hashtag in hashtags]
 
 
 def get_coordinates_from_tweet(tweet):
@@ -24,4 +28,3 @@ def get_coordinates_from_tweet(tweet):
         return []
     else:
         return tweet.get('doc').get('coordinates').get('coordinates')
-
