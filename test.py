@@ -1,6 +1,4 @@
 from mpi4py import MPI
-import tweet_util
-import json
 import os
 import sys
 
@@ -24,14 +22,13 @@ start = (file_size // process_number) * rank
 stop = (file_size // process_number) * (rank + 1)
 
 
-
 with open(filename) as twitter_file:
     new_filename = "part_{}.json".format(rank)
     new_file = open(new_filename, "w+")
     # trim each start line and stop line
-    twitter_file.seek(start,0)
+    twitter_file.seek(start, 0)
     start_line = twitter_file.readline()
-    twitter_file.seek(stop,0)
+    twitter_file.seek(stop, 0)
     stop_line = twitter_file.readline()
     start += len(start_line)
     stop += len(stop_line)

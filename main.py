@@ -5,45 +5,58 @@ import json
 import os
 from collections import Counter
 import sys
+import getopt
 
 
+twitter_filepath = "bigTwitter.json"
+melb_filepath = "melbGrid.json"
+opts, args = getopt.getopt(sys.argv[1:], "t:m:")
+
+for op, value in opts:
+    if op == "-t":
+        twitter_filepath = value
+    elif op == "-m":
+        melb_filepath = value
+
+# initial grid and twitter file info
+grid_manager = GridManager(melb_filepath)
+twitter_file_size = tweet_util.get_file_size()
+
+# mpi info
 comm = MPI.COMM_WORLD
 process_number = comm.size
 rank = comm.rank
 
-grid_manager = GridManager()
+# compute the start and stop point
+start = (twitter_file_size // process_number) * rank
+stop = (twitter_file_size // process_number) * (rank + 1)
 
-# get twitter json file
-filename = "tinyTwitter.json"
-if len(sys.argv) == 2:
-    filename = sys.argv[1]
+with open(twitter_filepath) as twitter_file:
 
-# initial json file information
-file_size = 0
-try:
-    file_size = os.path.getsize(filename)
-except Exception as e:
-    print(str(e))
+    # trim each start line and stop line
+    twitter_file.seek(start)
+    start_line = twitter_file.readline()
 
-start = (file_size // process_number) * rank
-stop = (file_size // process_number) * (rank + 1)
-if rank + 1 == process_number:
-    stop += file_size % process_number
+    twitter_file.seek(stop)
+    stop_line = twitter_file.readline()
 
-with open(filename) as twitter_file:
+    start += len(start_line)
+    stop += len(stop_line)
 
     cur_pos = start
-    twitter_file.seek(start)
+    twitter_file.seek(cur_pos)
 
-    # skip first line
-    first_line = twitter_file.readline()
-    cur_pos += len(first_line)
     for line in twitter_file:
         cur_pos += len(line)
+        if cur_pos > stop:
+            break
+
         try:
             line = line.strip()
-            if line == "]}":
-                break
+
+            if len(line) < 3:
+                continue
+
             if line.endswith(","):
                 line = line[:-1]
 
@@ -54,9 +67,8 @@ with open(filename) as twitter_file:
 
             grid_manager.collect_tweet(hashtags, coordinates)
 
-            if cur_pos > stop:
-                break
         except Exception as e:
+            print("exception line:" + line)
             print(e)
 
 # gather the posts counter result

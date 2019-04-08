@@ -3,6 +3,7 @@
 # Utility to process geo data
 
 import json
+import sys
 from collections import Counter
 
 
@@ -11,13 +12,10 @@ class GridManager(object):
     manage and store important data of the grid map
     """
 
-    def __init__(self):
+    def __init__(self, filename):
         # lists of the possible value of the x,y axis
         self.x_list = []
         self.y_list = []
-
-        # list of grid
-        self.grid = []
 
         # hash table of the post number of a cell
         # in the form of {"A2": 100}
@@ -30,14 +28,18 @@ class GridManager(object):
         # in the form of { "A2": {"melbourne": 100} }
         self.hashtags_table_dict = {}
 
-        self.initial_grid()
+        self.initial_grid(filename)
 
-    def initial_grid(self):
+    def initial_grid(self, filename="melbGrid.json"):
         """
         read melbGrid file, initial grid data
         """
-        with open("melbGrid.json") as grid_file:
-            grid = json.load(grid_file)
+        try:
+            with open(filename) as grid_file:
+                grid = json.load(grid_file)
+        except Exception as e:
+            print("Failed to open melbGrid file.")
+            sys.exit()
 
         for cell in grid.get('features'):
             properties = cell.get('properties')
@@ -60,7 +62,6 @@ class GridManager(object):
             if cell["ymax"] not in self.y_list:
                 self.y_list.append(cell["ymax"])
 
-            self.grid.append(cell)
             self.posts_table[cell["name"]] = 0
             self.hashtags_table_dict[cell["name"]] = Counter()
 
@@ -131,10 +132,3 @@ class GridManager(object):
             return None
 
         return chr(ord("A") + index_y - 1) + str(index_x)
-
-    def print_grid(self):
-        """
-        print every cell's name and coordinates
-        """
-        for cell in self.grid:
-            print("{} {} {} {} {}".format(cell["name"], cell["xmin"], cell["xmax"], cell["ymin"], cell["ymax"]))

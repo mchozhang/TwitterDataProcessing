@@ -3,6 +3,21 @@
 # Utility to parse tweet data from json object
 
 import re
+import os
+import sys
+
+
+def get_file_size(filepath="bigTwitter.json"):
+    """
+    obtain the size of twitter json file
+    :param filepath: json file path
+    :return: size in bytes
+    """
+    try:
+        return os.path.getsize(filepath)
+    except Exception as e:
+        print("Failed to open twitter file.")
+        sys.exit()
 
 
 def get_hashtags_from_tweet(tweet):
