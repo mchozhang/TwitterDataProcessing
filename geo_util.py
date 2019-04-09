@@ -19,14 +19,14 @@ class GridManager(object):
 
         # hash table of the post number of a cell
         # in the form of {"A2": 100}
-        self.posts_table = {}
+        self.posts_counter = Counter()
 
         # number of tweets that out of bound
         self.out_of_bound = 0
 
-        # table of the hashtags table of a cell
+        # table of the hashtags counter of a cell
         # in the form of { "A2": {"melbourne": 100} }
-        self.hashtags_table_dict = {}
+        self.hashtags_counter_table = {}
 
         self.initial_grid(filename)
 
@@ -62,8 +62,8 @@ class GridManager(object):
             if cell["ymax"] not in self.y_list:
                 self.y_list.append(cell["ymax"])
 
-            self.posts_table[cell["name"]] = 0
-            self.hashtags_table_dict[cell["name"]] = Counter()
+            self.posts_counter[cell["name"]] = 0
+            self.hashtags_counter_table[cell["name"]] = Counter()
 
         self.x_list.sort()
         self.y_list.sort(reverse=True)
@@ -81,11 +81,10 @@ class GridManager(object):
             # found a cell for the tweet
             if cell_name is not None:
                 # posts number counter
-                self.posts_table[cell_name] += 1
+                self.posts_counter[cell_name] += 1
 
                 # hashtags number counter
-                for hashtag in hashtags:
-                    self.hashtags_table_dict[cell_name][hashtag] += 1
+                self.hashtags_counter_table[cell_name].update(hashtags)
             else:
                 self.out_of_bound += 1
         else:
