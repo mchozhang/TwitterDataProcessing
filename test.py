@@ -38,7 +38,7 @@ with open(filename,"rb") as twitter_file:
     twitter_file.seek(start, 0)
 #    print(rank, ": the stop position: ", stop)
 #    print("\n process",rank,"\n this is the start line \n", twitter_file.readline()[0:50])
-    twitter_file.seek(stop, 0)
+#    twitter_file.seek(stop, 0)
 
 #    print("\n process",rank,"\n this is the end line \n", twitter_file.readline()[0:50])
     cur_pos = start
@@ -49,11 +49,12 @@ with open(filename,"rb") as twitter_file:
         # if rank == 0 and cur_pos <30000:
         #     print("process: ",rank,":cur_pos:",cur_pos,"stop:",stop,line[0:30])
         cur_pos += len(line)
+        new_file.write(line)
         if cur_pos > stop:
                 #            print("process: ", rank,"\n this is super line \n",line[0:50])
             break
 
-        new_file.write(line)
+
     # while(cur_pos<stop):
     #     line = twitter_file.readline()
     #     cur_pos += len(line)-1
