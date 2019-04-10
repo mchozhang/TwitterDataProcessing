@@ -42,4 +42,4 @@ def get_coordinates_from_tweet(tweet):
     if outer_coordinates is None:
         return []
     else:
-        return tweet.get('doc').get('coordinates').get('coordinates')
+        return outer_coordinates.get('coordinates')

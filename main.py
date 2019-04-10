@@ -1,5 +1,5 @@
 from mpi4py import MPI
-from geo_util import GridManager
+import geo_util
 import tweet_util
 import json
 from collections import Counter
@@ -18,7 +18,7 @@ for op, value in opts:
         melb_filepath = value
 
 # initial grid and twitter file info
-grid_manager = GridManager(melb_filepath)
+grid_manager = geo_util.GridManager(melb_filepath)
 twitter_file_size = tweet_util.get_file_size(twitter_filepath)
 
 # mpi info
@@ -79,21 +79,20 @@ hashtags_counter_table = grid_manager.hashtags_counter_table
 hashtags_counter_table_list = comm.gather(hashtags_counter_table, root=0)
 
 if rank == 0:
-    # add up all the post counter result
-    final_posts_counter = Counter()
-    for counter in posts_counter_list:
-        final_posts_counter.update(counter)
+    # add up all the post counter result, in form of { "A1": 123, "A2": 321 }
+    final_posts_counter = geo_util.sum_up_post_counter(posts_counter_list)
 
-    # sort the posts number
-    final_posts_counter_list = sorted(final_posts_counter.items(), key=lambda kv: kv[1])
-    final_posts_counter_list.reverse()
-    print(str(final_posts_counter_list))
+    # sort in tuple
+    final_posts_counter_list = geo_util.sort_post_counter(final_posts_counter)
+
+    # print the posts counter result
+    geo_util.print_post_result(final_posts_counter_list)
 
     # add up all the hashtag counter result
-    final_hashtags_counter_table = {name: Counter() for name in hashtags_counter_table.keys()}
-    for table in hashtags_counter_table_list:
-        for cell_name, counter in table.items():
-            final_hashtags_counter_table[cell_name].update(counter)
+    final_hashtags_counter_table = geo_util.sum_up_hashtags_counter(final_posts_counter, hashtags_counter_table_list)
 
-    for cell_name, number in final_posts_counter_list:
-        print(cell_name + " " + str(final_hashtags_counter_table[cell_name].most_common(5)))
+    # print the top 5 hashtags counter of every cell
+    geo_util.print_hashtags_counter(final_hashtags_counter_table, final_posts_counter_list)
+
+
+
