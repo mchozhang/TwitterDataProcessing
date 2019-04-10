@@ -1,6 +1,4 @@
 from mpi4py import MPI
-import tweet_util
-import json
 import os
 import sys
 
@@ -31,7 +29,6 @@ with open(filename,"rb") as twitter_file:
     # trim each start line and stop line
     twitter_file.seek(start, 0)
     start_line = twitter_file.readline()
- #   print(rank,":  the first line of a file-",repr(start_line),"-length:", len(start_line))
     twitter_file.seek(stop, 0)
     stop_line = twitter_file.readline()
 
