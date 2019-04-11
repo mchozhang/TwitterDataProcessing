@@ -2,10 +2,8 @@ from mpi4py import MPI
 import geo_util
 import tweet_util
 import json
-import time
 import sys
 import getopt
-
 
 twitter_filepath = "bigTwitter.json"
 melb_filepath = "melbGrid.json"
@@ -26,12 +24,11 @@ comm = MPI.COMM_WORLD
 process_number = comm.size
 rank = comm.rank
 
-# compute the start and stop point
+# compute the start and stop byte
 start = (twitter_file_size // process_number) * rank
 stop = (twitter_file_size // process_number) * (rank + 1)
 
-t1 = time.time()
-with open(twitter_filepath) as twitter_file:
+with open(twitter_filepath, 'rb') as twitter_file:
 
     # trim each start line and stop line
     twitter_file.seek(start, 0)
@@ -46,17 +43,12 @@ with open(twitter_filepath) as twitter_file:
     cur_pos = start
     twitter_file.seek(cur_pos, 0)
 
-    line_count = 0
     for line in twitter_file:
+
         cur_pos += len(line)
-        line_count += 1
+        line = line.decode("utf-8").strip()
         try:
-            line = line.strip()
-
-            if len(line) < 3:
-                print(str(rank) + " " + str(start) + " " + str(cur_pos) + "short line:" + line)
-                continue
-
+            # remove "," at the end of the line
             if line.endswith(","):
                 line = line[:-1]
 
@@ -68,14 +60,11 @@ with open(twitter_filepath) as twitter_file:
             grid_manager.collect_tweet(hashtags, coordinates)
 
         except Exception as e:
-            print(str(rank) + " exception line:" + line)
-            print(e)
+            continue
 
         if cur_pos > stop:
             break
 
-print("line count:" + str(line_count))
-t2 = time.time()
 # gather the posts counter result
 posts_counter = grid_manager.posts_counter
 posts_counter_list = comm.gather(posts_counter, root=0)
@@ -99,8 +88,3 @@ if rank == 0:
 
     # print the top 5 hashtags counter of every cell
     geo_util.print_hashtags_counter(final_hashtags_counter_table, final_posts_counter_list)
-
-    t3 = time.time()
-    print("gathering time:{}".format(t3 - t2))
-
-print("{} computing time:{}".format(rank, t2 - t1))
