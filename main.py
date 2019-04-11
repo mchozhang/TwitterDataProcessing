@@ -4,7 +4,9 @@ import tweet_util
 import json
 import sys
 import getopt
+import time
 
+start_time = time.time()
 twitter_filepath = "bigTwitter.json"
 melb_filepath = "melbGrid.json"
 opts, args = getopt.getopt(sys.argv[1:], "t:m:")
@@ -31,17 +33,17 @@ stop = (twitter_file_size // process_number) * (rank + 1)
 with open(twitter_filepath, 'rb') as twitter_file:
 
     # trim each start line and stop line
-    twitter_file.seek(start, 0)
+    twitter_file.seek(start)
     start_line = twitter_file.readline()
 
-    twitter_file.seek(stop, 0)
+    twitter_file.seek(stop)
     stop_line = twitter_file.readline()
 
     start += len(start_line)
     stop += len(stop_line) - 1
 
     cur_pos = start
-    twitter_file.seek(cur_pos, 0)
+    twitter_file.seek(start)
 
     for line in twitter_file:
 
@@ -77,14 +79,14 @@ if rank == 0:
     # add up all the post counter result, in form of { "A1": 123, "A2": 321 }
     final_posts_counter = geo_util.sum_up_post_counter(posts_counter_list)
 
-    # sort in tuple
+    # descendant sorted list of tuples, in form of [(A1, 100), (A2, 99)]
     final_posts_counter_list = geo_util.sort_post_counter(final_posts_counter)
-
-    # print the posts counter result
-    geo_util.print_post_result(final_posts_counter_list)
 
     # add up all the hashtag counter result
     final_hashtags_counter_table = geo_util.sum_up_hashtags_counter(final_posts_counter, hashtags_counter_table_list)
 
-    # print the top 5 hashtags counter of every cell
+    # print the top 5 hashtags counter and posts of every cell in descendant order
     geo_util.print_hashtags_counter(final_hashtags_counter_table, final_posts_counter_list)
+
+    end_time = time.time()
+    print("elapsed time: {} seconds".format(end_time - start_time))

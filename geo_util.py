@@ -106,16 +106,6 @@ def sort_post_counter(counter):
     return posts_counter_list
 
 
-def print_post_result(counter_list):
-    """
-    print the result of the counter in order
-    :param counter_list: post counter list
-    :return:
-    """
-    for cell_name, number in counter_list:
-        print("{} : {} posts".format(cell_name, number))
-
-
 def sum_up_hashtags_counter(post_counter, hashtags_counter_table_list):
     """
     sum up the hashtags counter
@@ -140,19 +130,24 @@ def print_hashtags_counter(hashtags_counter_table, posts_counter_list):
     for cell_name, posts_number in posts_counter_list:
         # e.g. {"100", ["melb", "vic"], "99": ["baby"]}
         cell_result_table = dict()
+
+        # sorted list of the top 5 value
         cell_value_rank = []
 
-        for hashtag, number in hashtags_counter_table[cell_name].most_common():
+        # found the top 5 value and store in cell_result_table
+        for hashtag, hashtag_number in hashtags_counter_table[cell_name].most_common():
             hashtag = "#" + hashtag
-            if cell_result_table.get(number) is not None:
-                cell_result_table[number].append(hashtag)
+            if cell_result_table.get(hashtag_number) is not None:
+                cell_result_table[hashtag_number].append(hashtag)
             elif len(cell_result_table.keys()) >= 5:
                 break
             else:
-                cell_value_rank.append(number)
-                cell_result_table[number] = [hashtag]
+                cell_value_rank.append(hashtag_number)
+                cell_result_table[hashtag_number] = [hashtag]
 
         print_item = cell_name + " : "
-        for number in cell_value_rank:
-            print_item += "(" + ", ".join(cell_result_table[number]) + ", " + str(number) + "), "
-        print(print_item[:-2])
+        for hashtag_number in cell_value_rank:
+            print_item += "(" + ", ".join(cell_result_table[hashtag_number]) + ", " + str(hashtag_number) + "), "
+
+        print_item = print_item[:-2] + " " + str(posts_number) + " posts"
+        print(print_item)
