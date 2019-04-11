@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=physical
-#SBATCH --output=2_8.out
+#SBATCH --output=node_2_core_8.out
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=1

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --output=1_8.out
+#SBATCH --output=node_1_core_8.out
 #SBATCH --nodes=1
 #SBATCH --ntasks=8
 #SBATCH --cpus-per-task=1

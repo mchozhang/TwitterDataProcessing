@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --output=1_1.out
+#SBATCH --output=node_1_core_1.out
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 

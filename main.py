@@ -75,6 +75,10 @@ posts_counter_list = comm.gather(posts_counter, root=0)
 hashtags_counter_table = grid_manager.hashtags_counter_table
 hashtags_counter_table_list = comm.gather(hashtags_counter_table, root=0)
 
+end_time = time.time()
+elapsed_time = end_time - start_time
+rank_time_tuple_list = comm.gather((rank, elapsed_time), root=0)
+
 if rank == 0:
     # add up all the post counter result, in form of { "A1": 123, "A2": 321 }
     final_posts_counter = geo_util.sum_up_post_counter(posts_counter_list)
@@ -89,4 +93,7 @@ if rank == 0:
     geo_util.print_hashtags_counter(final_hashtags_counter_table, final_posts_counter_list)
 
     end_time = time.time()
-    print("elapsed time: {} seconds".format(end_time - start_time))
+    for process_rank, elapsed_time in rank_time_tuple_list:
+        if process_rank == 0:
+            elapsed_time = end_time - start_time
+        print("Process {} elapsed time: {} seconds".format(process_rank, elapsed_time))
