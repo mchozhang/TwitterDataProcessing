@@ -35,7 +35,6 @@ with open(filename,"rb") as twitter_file:
     start += len(start_line) # start cursor at head of next line
 #    print(rank,": the start position: ",start,twitter_file.readline())
     stop += len(stop_line)-1 # stop cursor at tail of this line
-    twitter_file.seek(start, 0)
 #    print(rank, ": the stop position: ", stop)
 #    print("\n process",rank,"\n this is the start line \n", twitter_file.readline()[0:50])
 #    twitter_file.seek(stop, 0)

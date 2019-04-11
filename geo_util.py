@@ -13,16 +13,12 @@ class GridManager(object):
     """
 
     def __init__(self, filename):
-        # lists of the possible value of the x,y axis
-        self.x_list = []
-        self.y_list = []
+        # list of cell, in order of [A1,A2 ... D5]
+        self.cell_list = []
 
         # hash table of the post number of a cell
-        # in the form of {"A2": 100}
+        # in the form of {"A1": 100, "A2": 99 ... }
         self.posts_counter = Counter()
-
-        # number of tweets that out of bound
-        self.out_of_bound = 0
 
         # table of the hashtags counter of a cell
         # in the form of { "A2": {"melbourne": 100} }
@@ -50,23 +46,9 @@ class GridManager(object):
             cell["ymin"] = properties.get('ymin')
             cell["ymax"] = properties.get('ymax')
 
-            if cell["xmin"] not in self.x_list:
-                self.x_list.append(cell["xmin"])
-
-            if cell["xmax"] not in self.x_list:
-                self.x_list.append(cell["xmax"])
-
-            if cell["ymin"] not in self.y_list:
-                self.y_list.append(cell["ymin"])
-
-            if cell["ymax"] not in self.y_list:
-                self.y_list.append(cell["ymax"])
-
+            self.cell_list.append(cell)
             self.posts_counter[cell["name"]] = 0
             self.hashtags_counter_table[cell["name"]] = Counter()
-
-        self.x_list.sort()
-        self.y_list.sort(reverse=True)
 
     def collect_tweet(self, hashtags, coordinates):
         """
@@ -85,10 +67,6 @@ class GridManager(object):
 
                 # hashtags number counter
                 self.hashtags_counter_table[cell_name].update(hashtags)
-            else:
-                self.out_of_bound += 1
-        else:
-            self.out_of_bound += 1
 
     def locate_from_coordinates(self, coordinates):
         """
@@ -99,38 +77,10 @@ class GridManager(object):
         x = coordinates[0]
         y = coordinates[1]
 
-        # index X of the grid, range 1-5
-        index_x = None
-
-        # index Y of the grid, range A-D, represented in number
-        index_y = None
-
-        # find index X of the grid,
-        for i, item in enumerate(self.x_list[1:], start=1):
-            if self.x_list[i - 1] <= x <= self.x_list[i]:
-                index_x = i
-                break
-
-        # exclude "A5 B5"
-        y_start = 1
-        if index_x == 5:
-            y_start = 3
-
-        # find index Y of the grid
-        for i, item in enumerate(self.y_list[y_start:], start=y_start):
-            if self.y_list[i - 1] >= y >= self.y_list[i]:
-                index_y = i
-                break
-
-        # out of bound
-        if index_x is None or index_y is None:
-            return None
-
-        # exclude "D1 D2"
-        if index_x < 3 and index_y == 4:
-            return None
-
-        return chr(ord("A") + index_y - 1) + str(index_x)
+        for cell in self.cell_list:
+            if cell["xmin"] <= x <= cell["xmax"] and cell["ymin"] <= y <= cell["ymax"]:
+                return cell["name"]
+        return None
 
 
 def sum_up_post_counter(posts_counter_list):
