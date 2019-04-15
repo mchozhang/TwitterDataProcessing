@@ -1,3 +1,8 @@
+# -*- encoding: utf-8 -*-
+#
+# Calculate start and stop position according to MPI rank,
+# process the twitter file line by line to obtain data
+
 from mpi4py import MPI
 import geo_util
 import tweet_util
